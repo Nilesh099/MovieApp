@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import useFetchDetails from "../hooks/usefetchDetails";
 import { useSelector } from "react-redux";
@@ -6,6 +6,7 @@ import moment from "moment";
 import Divider from "../components/Divider";
 import HorizontalScrollCard from "../components/HorizontalScrollCard";
 import useFetch from "../hooks/useFetch";
+import Videoplay from "../components/Videoplay";
 
 const DetailsPage = () => {
   const params = useParams();
@@ -20,12 +21,20 @@ const DetailsPage = () => {
   const { data: castData } = useFetchDetails(
     `/${params?.explore}/${params?.id}/credits`
   );
+  const [playVideo, setplayVideo]=useState(false);
+  const [playVideoId, setplayVideoId]=useState(false);
   
   const duration = (data?.runtime / 60)?.toFixed(1).split(".");
   const writer = castData?.crew
     ?.filter((el) => el?.job === "Writer")
     ?.map((el) => el?.name)
     .join(", ");
+
+
+    const handlePlayVideo=(data)=>{
+      setplayVideoId(data);
+      setplayVideo(true);
+    }
 
   return (
     <div>
@@ -45,6 +54,7 @@ const DetailsPage = () => {
             src={imageURL + data?.poster_path}
             className="h-80 w-60 object-cover rounded"
           />
+          <button onClick={()=>handlePlayVideo(data)} className="mt-3 w-full py-2 px-4 text-center bg-white text-black rounded font-bold text-lg hover:bg-gradient-to-l from-red-500 to-orange-500 hover:scale-105 transition-all">Play Now</button>
         </div>
         <div>
           <h2 className="text-2xl lg:text-3xl font-bold text-white">
@@ -116,6 +126,11 @@ const DetailsPage = () => {
         <HorizontalScrollCard data={similarData} heading={"Similar " + params?.explore} media_type={params?.explore}/>
         <HorizontalScrollCard data={recommendationData} heading={"Recommendation " + params?.explore} media_type={params?.explore}/>
       </div>
+
+      {
+        playVideo && (<Videoplay data={playVideoId} close={()=>setplayVideo(false)} media_type={params?.explore} />)
+      }
+      
     </div>
   );
 };
